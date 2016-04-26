@@ -2,8 +2,8 @@ zhihu-python：获取知乎信息
 ===============================
 
 :Author: `egrcc <https://github.com/egrcc>`_ ( `微博 <http://weibo.com/u/2948739432>`_ | `电邮 <zhaolujun1994@gmail.com>`_ )
-:Committer: `Eureka22 <https://github.com/Eureka22>`_ ,  `lufo816 <https://github.com/lufo816>`_ , `LuoZijun <https://github.com/LuoZijun>`_
-:Update: 09/09 2015
+:Contributors: 参见 `Contributors <https://github.com/egrcc/zhihu-python/graphs/contributors>`_
+:Update: 04/23 2016
 
 
 .. contents::
@@ -271,6 +271,8 @@ User 代表一个用户，处理用户相关操作。创建一个 User 对象需
     agree_num = user.get_agree_num()
     # 获取该用户获得的感谢数
     thanks_num = user.get_thanks_num()
+    # 获取该用户的头像url
+    head_img_url = user.get_head_img_url()
     
     # 获取该用户关注的人
     followees = user.get_followees()
@@ -291,6 +293,7 @@ User 代表一个用户，处理用户相关操作。创建一个 User 对象需
     print collections_num # 44
     print agree_num # 46387
     print thanks_num # 11477
+    print head_img_url  # https://pic2.zhimg.com/0626f4164009f291b26a79d96c6962c5_l.jpg
     
     print followees
     # <generator object get_followee at 0x7ffcac3af050>
@@ -351,6 +354,104 @@ Collection 代表一个收藏夹，处理收藏夹相关操作。创建一个 Co
     print answers 
     # <generator object get_all_answer at 0x7fe12a29b280>
     # 代表所有答案的生成器对象
+
+
+Column：获取专栏信息
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Column 代表一个专栏，处理专栏相关操作。创建一个 Column 对象需传入该专栏的 url ，如：
+
+.. code-block:: python
+
+    from zhihu import Column
+    
+    url = "http://zhuanlan.zhihu.com/daily"
+    column = Column(url)
+
+得到 Column 对象后，可以获取该专栏的一些信息：
+
+.. code-block:: python
+
+    # -*- coding: utf-8 -*-
+    from zhihu import Column
+    
+    url = "http://zhuanlan.zhihu.com/daily"
+    column = Column(url)
+
+    # 获取该专栏的标题
+    title = column.get_title()
+    # 获取该专栏的描述
+    description = column.get_description()
+    # 获取该专栏的作者
+    creator = column.get_creator()
+    # 获取该专栏的文章数
+    posts_num = column.get_posts_num()
+    # 获取该专栏的所有文章
+    posts = column.get_all_posts()
+
+    print title  # 输出：知乎日报
+    print description
+    # 输出：
+    # 知乎日报启动画面接受所有摄影师朋友们的投稿，将作品链接
+    #（如 Flickr、LOFTER 等等），发至邮箱 qidong (at) zhihu.com，
+    # 并附上您的知乎个人页面地址即可。
+    # 
+    # 详细投稿要求: http://t.cn/zQyEpN5
+
+    print creator  
+    # 输出：<zhihu.User instance at 0x75e33eb8>
+    # User类对象
+    print posts_num # 150 
+    print posts
+    # 输出：<generator object get_all_posts at 0x75e33bc0>
+    # Post类对象
+
+
+Post：获取专栏文章信息
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Post 代表一个专栏文章，处理专栏文章相关操作。创建一个 Post 对象需传入该文章的 url ，如：
+
+.. code-block:: python
+
+    from zhihu import Post
+    
+    url = "http://zhuanlan.zhihu.com/p/20235601"
+    post = Post(url)
+
+得到 Post 对象后，可以获取该文章的一些信息：
+
+.. code-block:: python
+
+    # -*- coding: utf-8 -*-
+    from zhihu import Post
+    
+    url = "http://zhuanlan.zhihu.com/p/20770968"
+    post = Post(url)
+
+    # 获取该文章的标题
+    title = post.get_title()
+    # 获取该文章的内容
+    content = post.get_content()
+    # 获取该文章的作者
+    author = post.get_author()
+    # 获取该文章的所属专栏
+    column = post.get_column()
+    # 获取该文章所属话题
+    topics = post.get_topics()
+
+    print title  # 输出：夜读书|四月十九日
+    print content
+    # 输出：
+    # <p>各位，晚上好。<br> ...
+    # ......
+    print author
+    # 输出： <zhihu.User instance at 0x75ec0fd0>
+    for topic in topics:
+        print topic,  # 输出：阅读
+    print column  
+    # 输出：<zhihu.Column instance at 0x75eb3eb8>
+    # Column类对象
     
 
 综合实例
@@ -517,6 +618,14 @@ zhihu.User ---- 知乎用户操作类
   得到该用户获得的感谢数。
   
   **Returns**： 代表感谢数的 int 型整数
+
+ **get_head_img_url** (scale)
+
+  获取用户头像url。该方法由 `@liuwons <https://github.com/liuwons>`_ 添加。
+
+  **Parameters**： **scale** int 型整数，代表尺寸: 1(25×25), 3(75×75), 4(100×100), 6(150×150), 10(250×250)
+
+  **Returns**： 对应尺寸头像的图片链接, 字符串
  
  **get_asks_num** ()
  
@@ -669,26 +778,108 @@ zhihu.Collection ---- 知乎收藏夹操作类
   **Returns**： 包含该收藏夹下前 n 个回答的 generator 对象。其中每一个元素为代表一个回答的 Answer 对象
 
 
+zhihu.Column ---- 知乎专栏操作类
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+*class* zhihu. **Column** (*Column_url*)
+
+ Column 以 url 为唯一标识，创建一个 Column 对象实例必须传入一个代表知乎专栏的 url （如：http://zhuanlan.zhihu.com/daily），需包含“http(s)://”。如果传入的不是代表专栏的 url ，程序会报错。通过调用 Column 类的一系列方法，获得该专栏的一些信息。该类由 `@johnnyluck <https://github.com/johnnyluck>`_ 添加。
+ 
+ **Parameters**：
+  * **column_url** -- 该专栏的链接，字符串
+  
+ **Returns**： 一个 Column 实例对象
+
+ **get_title** ()
+ 
+  得到该专栏的题目。
+  
+  **Returns**： 一个代表题目的字符串 
+ 
+ **get_creator** ()
+ 
+  得到该专栏的创建者。
+  
+  **Returns**： 一个 User 对象
+ 
+ **get_description** ()
+ 
+  得到该专栏的描述。
+  
+  **Returns**： 一个专栏描述的字符串
+
+ **get_followers_num** ()
+
+  得到该专栏的关注人数。
+
+  **Returns**： 一个 int 型的整数
+ 
+ **get_posts_num** ()
+
+  得到该专栏的所有文章数。
+
+  **Returns**： 一个 int 型的整数
+ 
+ **get_content** ()
+ 
+  得到该答案的内容。
+  
+  **Returns**： 一个字符串
+
+ **get_posts** ()
+
+  得到该专栏的所有文章。
+
+  **Returns**：包含所有文章的 generator 对象。其中每一个元素为代表一个文章 Post 对象
+ 
+
+zhihu.Post ---- 知乎专栏文章操作类
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*class* zhihu. **Post** (*Post_url*)
+
+ Post 以 url 为唯一标识，创建一个 Post 对象实例必须传入一个代表知乎文章的 url （如：http://zhuanlan.zhihu.com/p/20235601），需包含“http(s)://”。如果传入的不是代表文章的 url ，程序会报错。通过调用 Post 类的一系列方法，获得该文章的一些信息。该类由 `@johnnyluck <https://github.com/johnnyluck>`_ 添加。
+ 
+ **Parameters**：
+  * **post_url** -- 该文章的链接，字符串
+  
+ **Returns**： 一个 Post 实例对象
+
+ **get_title** ()
+ 
+  得到该文章的题目。
+  
+  **Returns**： 一个代表题目的字符串 
+ 
+ **get_author** ()
+ 
+  得到该文章的作者。
+  
+  **Returns**： 一个 User 对象
+ 
+ **get_content** ()
+ 
+  得到该文章的内容。
+  
+  **Returns**： 一个文章描述的字符串
+
+ **get_topics** ()
+ 
+  得到该文章的话题。
+  
+  **Returns**： 一个列表
+
+ **get_column** ()
+
+  得到该文章的所属专栏。
+
+  **Returns**：一个 Column 的实例对象
+ 
+  
 联系我
 ----------
 
 - 微博：http://weibo.com/u/2948739432
 - github：https://github.com/egrcc
 - email：zhaolujun1994@gmail.com
-
-
-捐赠
-----------
-
-如果本项目有帮到你，欢迎捐赠支持。
-
-支付宝（左），微信支付（右）：
-
-
-.. image:: http://egrcc.github.io/img/alipay.jpg
-
-.. image:: http://egrcc.github.io/img/wechat.png
-
-
 
